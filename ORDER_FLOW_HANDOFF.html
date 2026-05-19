@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MCON 364 Final Review: Order, Flow, and Handoff</title>
+  <style>
+    :root{
+      --bg:#f7f8fb;
+      --panel:#ffffff;
+      --ink:#172033;
+      --muted:#64748b;
+      --brand:#2563eb;
+      --brand2:#7c3aed;
+      --good:#059669;
+      --warn:#d97706;
+      --bad:#dc2626;
+      --line:#dbe3ef;
+      --soft:#eef4ff;
+      --soft2:#f5f0ff;
+      --soft3:#ecfdf5;
+      --code:#0f172a;
+      --cream:#fffbeb;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      line-height:1.55;
+    }
+    header{
+      background:
+        radial-gradient(circle at top left,rgba(255,255,255,.22),transparent 34%),
+        linear-gradient(135deg,var(--brand),var(--brand2));
+      color:white;
+      padding:44px 28px 36px;
+      border-bottom:8px solid rgba(255,255,255,.25);
+    }
+    header h1{margin:0;font-size:clamp(2rem,4vw,3.7rem);line-height:1.05;letter-spacing:-.03em}
+    header p{max-width:1000px;font-size:1.18rem;margin:16px 0 0;opacity:.96}
+    nav{
+      position:sticky;
+      top:0;
+      z-index:10;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(10px);
+      border-bottom:1px solid var(--line);
+      padding:10px 22px;
+    }
+    nav .inner{max-width:1180px;margin:0 auto;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    nav a{
+      color:#1d4ed8;
+      text-decoration:none;
+      border:1px solid #bfdbfe;
+      background:#eff6ff;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.9rem;
+      font-weight:700;
+    }
+    main{max-width:1180px;margin:0 auto;padding:28px}
+    section{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:24px;
+      margin:24px 0;
+      padding:28px;
+      box-shadow:0 10px 30px rgba(15,23,42,.06);
+    }
+    h2{font-size:clamp(1.65rem,3vw,2.25rem);margin:0 0 12px;line-height:1.15;letter-spacing:-.02em}
+    h3{font-size:1.25rem;margin:26px 0 10px;color:#1e3a8a}
+    h4{font-size:1.05rem;margin:0 0 8px;color:#334155}
+    p{margin:10px 0}
+    .muted{color:var(--muted)}
+    .lead{font-size:1.1rem;color:#334155;max-width:980px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+    .two{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:start}
+    @media(max-width:850px){.two{grid-template-columns:1fr}}
+    .card{
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:18px;
+      background:#fff;
+    }
+    .card.blue{background:var(--soft)}
+    .card.purple{background:var(--soft2)}
+    .card.green{background:var(--soft3)}
+    .card.cream{background:var(--cream)}
+    .badge{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      background:#e0ecff;
+      color:#1d4ed8;
+      font-weight:800;
+      font-size:.78rem;
+      letter-spacing:.02em;
+      margin-right:6px;
+      text-transform:uppercase;
+    }
+    .time{background:#ecfdf5;color:#047857}
+    .warn{background:#fff7ed;color:#c2410c}
+    .purple-badge{background:#f3e8ff;color:#6d28d9}
+    .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:18px 0}
+    .node{padding:12px 15px;border-radius:15px;background:#eef2ff;border:1px solid #c7d2fe;font-weight:800;color:#312e81}
+    .arrow{font-size:1.45rem;color:var(--muted)}
+    ul,ol{padding-left:1.35rem}
+    li{margin:.38rem 0}
+    code{
+      background:#eef2f7;
+      border:1px solid #d8e0ec;
+      border-radius:6px;
+      padding:1px 5px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      font-size:.92em;
+    }
+    pre{
+      background:var(--code);
+      color:#e5e7eb;
+      border-radius:17px;
+      padding:16px;
+      overflow:auto;
+      line-height:1.45;
+      border:1px solid #1e293b;
+    }
+    pre code{background:transparent;border:0;color:inherit;padding:0}
+    .callout{
+      border-left:6px solid var(--brand);
+      background:#f8fbff;
+      padding:15px 17px;
+      border-radius:13px;
+      margin:16px 0;
+    }
+    .question{border-left-color:var(--brand2);background:#faf5ff}
+    .practice{border-left-color:var(--warn);background:#fffbeb}
+    .good{border-left-color:var(--good);background:#f0fdf4}
+    .pitfall{border-left-color:var(--bad);background:#fff5f5}
+    table{width:100%;border-collapse:collapse;margin:14px 0;border-radius:14px;overflow:hidden}
+    th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
+    th{background:#f1f5f9;color:#334155}
+    .big-number{
+      width:38px;height:38px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+      background:#dbeafe;color:#1d4ed8;font-weight:900;margin-right:8px;
+    }
+    .compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px}
+    .mini-title{font-weight:900;color:#334155;margin-bottom:4px}
+    .footer{text-align:center;color:var(--muted);font-size:.9rem;margin:30px 0}
+    .slide-break{height:10px}
+    .checklist li{list-style:"✓  ";padding-left:4px}
+  </style>
+</head>
+<body>
+<header>
+  <h1>Final Review Lesson 1: Order, Flow, and Handoff</h1>
+  <p>Today we are not reviewing by memorizing topics. We are going to look at problems, model them, choose the right structure, choose the right operations, and then implement.</p>
+</header>
+
+<nav>
+  <div class="inner">
+    <a href="#big-idea">Big Idea</a>
+    <a href="#warmup">Warm-up</a>
+    <a href="#problem1">Problem 1: Stack</a>
+    <a href="#problem2">Problem 2: Queue + Producer/Consumer</a>
+    <a href="#problem3">Problem 3: Stats</a>
+    <a href="#homework">Homework</a>
+    <a href="#final-connection">Final Connection</a>
+  </div>
+</nav>
+
+<main>
+<section id="big-idea">
+  <h2>The pattern for today</h2>
+  <p class="lead">For each problem, we are going to follow the same path. This is the same path we want to use on the final.</p>
+
+  <div class="flow">
+    <div class="node">Read the problem</div>
+    <div class="arrow">→</div>
+    <div class="node">Model the data</div>
+    <div class="arrow">→</div>
+    <div class="node">Choose structures</div>
+    <div class="arrow">→</div>
+    <div class="node">Name operations</div>
+    <div class="arrow">→</div>
+    <div class="node">Choose algorithm / pattern</div>
+    <div class="arrow">→</div>
+    <div class="node">Implement</div>
+  </div>
+
+  <div class="grid">
+    <div class="card blue">
+      <span class="badge">Order</span>
+      <h3>When order matters</h3>
+      <p>Now let's ask: do we need the most recent thing first, or the oldest thing first?</p>
+      <ul>
+        <li>Most recent first → stack</li>
+        <li>Oldest first → queue</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <span class="badge purple-badge">Flow</span>
+      <h3>When work moves</h3>
+      <p>Let's think about work entering the system, waiting somewhere, and being handled later.</p>
+      <ul>
+        <li>Work comes in</li>
+        <li>Work waits in a queue</li>
+        <li>Workers take work out</li>
+      </ul>
+    </div>
+    <div class="card green">
+      <span class="badge time">Handoff</span>
+      <h3>When threads are involved</h3>
+      <p>Once multiple threads touch the same data, we have to ask what is shared and how it is protected.</p>
+      <ul>
+        <li>Shared queue</li>
+        <li>Shared counters</li>
+        <li>Shared summary state</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout question">
+    <strong>Guiding question:</strong> Before we write code, let's ask: What does this problem care about — order, uniqueness, lookup, priority, summary, or safe handoff between threads?
+  </div>
+</section>
+
+<section id="warmup">
+  <h2>Warm-up: what kind of problem is this?</h2>
+  <p>Let's look at a few small situations. We are not coding yet. We are only choosing the right tool.</p>
+
+  <table>
+    <tr>
+      <th>Scenario</th>
+      <th>What we notice</th>
+      <th>Likely tool</th>
+    </tr>
+    <tr>
+      <td>Undo the last edit in a document</td>
+      <td>The most recent action is the first one undone.</td>
+      <td><code>Deque</code> used as a stack</td>
+    </tr>
+    <tr>
+      <td>Print jobs wait for a printer</td>
+      <td>The first job submitted should print first.</td>
+      <td><code>Queue</code></td>
+    </tr>
+    <tr>
+      <td>Many parts of a system submit log messages while worker threads process them</td>
+      <td>One side produces work, another side consumes work.</td>
+      <td>Producer / Consumer with a queue</td>
+    </tr>
+    <tr>
+      <td>Calculate min, max, count, and average from processed values</td>
+      <td>We are summarizing many values.</td>
+      <td>Stats object, stream summary, or thread-safe counters</td>
+    </tr>
+  </table>
+
+  <div class="callout good">
+    <strong>Main takeaway:</strong> The structure is not decoration. The structure is part of the solution. If we choose the wrong structure, the code becomes harder than it needs to be.
+  </div>
+</section>
+
+<section id="problem1">
+  <h2><span class="big-number">1</span>Problem: Undo / Redo History</h2>
+  <p class="lead">Now let's start with a problem that is really about <strong>history</strong>.</p>
+
+  <div class="callout">
+    <strong>Problem statement:</strong> A simple editor keeps track of actions. We can perform a new action, undo the most recent action, and redo the most recently undone action.
+  </div>
+
+  <h3>Step 1: Model the data</h3>
+  <p>Let's keep the domain small. An action needs a description and maybe a timestamp.</p>
+
+  <pre><code>public record EditorAction(
+        String description,
+        long timestamp
+) { }</code></pre>
+
+  <h3>Step 2: Identify the operations</h3>
+  <p>Before choosing code, let's name what the object needs to do.</p>
+
+  <pre><code>public void perform(EditorAction action)
+public Optional&lt;EditorAction&gt; undo()
+public Optional&lt;EditorAction&gt; redo()
+public int undoCount()
+public int redoCount()</code></pre>
+
+  <h3>Step 3: Choose the data structure</h3>
+  <p>Let's think about the order. When we undo, which action do we need?</p>
+  <p>We need the <strong>most recent</strong> action. That means this is a stack-shaped problem.</p>
+
+  <pre><code>private final Deque&lt;EditorAction&gt; undoStack = new ArrayDeque&lt;&gt;();
+private final Deque&lt;EditorAction&gt; redoStack = new ArrayDeque&lt;&gt;();</code></pre>
+
+  <div class="compare">
+    <div class="card blue">
+      <div class="mini-title">Undo stack</div>
+      <p>Stores actions we have performed and might undo.</p>
+    </div>
+    <div class="card purple">
+      <div class="mini-title">Redo stack</div>
+      <p>Stores actions we have undone and might restore.</p>
+    </div>
+  </div>
+
+  <h3>Step 4: Identify the algorithm</h3>
+  <table>
+    <tr><th>Operation</th><th>What happens?</th><th>Why?</th></tr>
+    <tr>
+      <td><code>perform(action)</code></td>
+      <td>Push onto undo stack and clear redo stack.</td>
+      <td>A new action changes history, so old redo choices no longer make sense.</td>
+    </tr>
+    <tr>
+      <td><code>undo()</code></td>
+      <td>Pop from undo stack and push onto redo stack.</td>
+      <td>The action is no longer active, but we may want to redo it.</td>
+    </tr>
+    <tr>
+      <td><code>redo()</code></td>
+      <td>Pop from redo stack and push onto undo stack.</td>
+      <td>The action becomes active again.</td>
+    </tr>
+  </table>
+
+  <h3>Step 5: Implement together</h3>
+  <p>Now we'll create the class. Notice where <code>Optional</code> belongs: undo and redo may not have anything to return.</p>
+
+  <pre><code>public class EditorHistory {
+    private final Deque&lt;EditorAction&gt; undoStack = new ArrayDeque&lt;&gt;();
+    private final Deque&lt;EditorAction&gt; redoStack = new ArrayDeque&lt;&gt;();
+
+    public void perform(EditorAction action) {
+        // TODO: push action onto undoStack
+        // TODO: clear redoStack
+    }
+
+    public Optional&lt;EditorAction&gt; undo() {
+        // TODO: if undoStack is empty, return Optional.empty()
+        // TODO: otherwise move one action from undoStack to redoStack
+    }
+
+    public Optional&lt;EditorAction&gt; redo() {
+        // TODO: if redoStack is empty, return Optional.empty()
+        // TODO: otherwise move one action from redoStack to undoStack
+    }
+
+    public int undoCount() {
+        return undoStack.size();
+    }
+
+    public int redoCount() {
+        return redoStack.size();
+    }
+}</code></pre>
+
+  <div class="callout practice">
+    <strong>Class exercise:</strong> Complete <code>EditorHistory</code>. Then test this sequence: perform A, perform B, undo, redo, undo, perform C. What should be left in the redo stack?
+  </div>
+
+  <div class="callout pitfall">
+    <strong>Watch for this:</strong> If <code>perform</code> does not clear the redo stack, the object allows redo actions from an old branch of history. That is a logic bug, not a syntax bug.
+  </div>
+</section>
+
+<section id="problem2">
+  <h2><span class="big-number">2</span>Problem: Log Processor</h2>
+  <p class="lead">Now let's make the queue problem more realistic. Work arrives from one place and gets handled somewhere else.</p>
+
+  <div class="callout">
+    <strong>Problem statement:</strong> A system receives log messages. Code in different parts of the application submits messages. Worker threads process those messages and update summary counts.
+  </div>
+
+  <h3>Step 1: Model the data</h3>
+  <p>Let's represent each message with a source, a level, a message, and a timestamp.</p>
+
+  <pre><code>public enum LogLevel {
+    INFO, WARN, ERROR
+}
+
+public record LogMessage(
+        String source,
+        LogLevel level,
+        String message,
+        long timestamp
+) { }</code></pre>
+
+  <h3>Step 2: Identify the operations</h3>
+  <p>Let's write the public API before the implementation. This helps us focus on behavior.</p>
+
+  <pre><code>public void submit(LogMessage message)
+public void start(int workerCount)
+public void stop() throws InterruptedException
+public int getTotalProcessed()
+public Map&lt;LogLevel, Integer&gt; getCountsByLevel()</code></pre>
+
+  <h3>Step 3: Choose the data structure</h3>
+  <p>This is a queue-shaped problem because messages wait to be processed in arrival order.</p>
+  <p>But now there is a twist: multiple threads are involved. A normal <code>ArrayDeque</code> is not enough because the queue is shared.</p>
+
+  <pre><code>private final BlockingQueue&lt;LogMessage&gt; queue = new LinkedBlockingQueue&lt;&gt;();</code></pre>
+
+  <div class="callout question">
+    <strong>Let's think about it:</strong> If one thread is adding messages while another thread is removing messages, what can go wrong with a plain queue?
+  </div>
+
+  <h3>Step 4: Identify the pattern</h3>
+  <p>This is the Producer / Consumer pattern.</p>
+
+  <div class="flow">
+    <div class="node">Producer submits message</div>
+    <div class="arrow">→</div>
+    <div class="node">Shared queue</div>
+    <div class="arrow">→</div>
+    <div class="node">Consumer thread takes message</div>
+    <div class="arrow">→</div>
+    <div class="node">Stats updated</div>
+  </div>
+
+  <table>
+    <tr><th>Role</th><th>Meaning in this problem</th><th>Java tool</th></tr>
+    <tr>
+      <td>Producer</td>
+      <td>Code that calls <code>submit</code></td>
+      <td>Any calling thread</td>
+    </tr>
+    <tr>
+      <td>Queue</td>
+      <td>Messages waiting to be processed</td>
+      <td><code>BlockingQueue</code></td>
+    </tr>
+    <tr>
+      <td>Consumer</td>
+      <td>Worker thread that processes messages</td>
+      <td><code>Thread</code> with a loop</td>
+    </tr>
+    <tr>
+      <td>Stats</td>
+      <td>Total processed and counts by level</td>
+      <td><code>AtomicInteger</code>, <code>ConcurrentHashMap</code></td>
+    </tr>
+  </table>
+
+  <h3>Step 5: Choose thread-safe state</h3>
+  <p>Now let's list the shared state. If multiple workers update the same counters, those counters must be safe.</p>
+
+  <pre><code>private final AtomicInteger totalProcessed = new AtomicInteger();
+private final ConcurrentHashMap&lt;LogLevel, AtomicInteger&gt; countsByLevel = new ConcurrentHashMap&lt;&gt;();
+private final List&lt;Thread&gt; workers = new ArrayList&lt;&gt;();
+private volatile boolean running = false;</code></pre>
+
+  <div class="callout good">
+    <strong>Why this makes sense:</strong> The queue handles safe handoff. <code>AtomicInteger</code> handles safe counting. <code>ConcurrentHashMap</code> handles safe lookup and updates by log level.
+  </div>
+
+  <h3>Step 6: Implement the processing loop</h3>
+  <p>Now let's think about stopping. We do not want workers to stop while messages are still waiting in the queue.</p>
+
+  <pre><code>while (running || !queue.isEmpty()) {
+    LogMessage message = queue.poll(100, TimeUnit.MILLISECONDS);
+    if (message != null) {
+        process(message);
+    }
+}</code></pre>
+
+  <p>The loop continues while the processor is running, or while there is still work left to finish.</p>
+
+  <h3>Step 7: Starter class</h3>
+  <p>Now we'll implement this together.</p>
+
+  <pre><code>public class LogProcessor {
+    private final BlockingQueue&lt;LogMessage&gt; queue = new LinkedBlockingQueue&lt;&gt;();
+    private final AtomicInteger totalProcessed = new AtomicInteger();
+    private final ConcurrentHashMap&lt;LogLevel, AtomicInteger&gt; countsByLevel = new ConcurrentHashMap&lt;&gt;();
+    private final List&lt;Thread&gt; workers = new ArrayList&lt;&gt;();
+    private volatile boolean running = false;
+
+    public void submit(LogMessage message) {
+        // TODO: add the message to the queue
+    }
+
+    public void start(int workerCount) {
+        // TODO: mark running as true
+        // TODO: create workerCount threads
+        // TODO: each thread should poll messages and process them
+        // TODO: start each worker and store it in workers
+    }
+
+    private void process(LogMessage message) {
+        // TODO: increment totalProcessed
+        // TODO: increment count for this message level
+    }
+
+    public void stop() throws InterruptedException {
+        // TODO: mark running as false
+        // TODO: join all worker threads
+    }
+
+    public int getTotalProcessed() {
+        // TODO: return atomic count
+        return 0;
+    }
+
+    public Map&lt;LogLevel, Integer&gt; getCountsByLevel() {
+        // TODO: return a defensive snapshot as Map&lt;LogLevel, Integer&gt;
+        return Map.of();
+    }
+}</code></pre>
+
+  <div class="callout practice">
+    <strong>Class exercise:</strong> Complete <code>submit</code>, <code>process</code>, and <code>getTotalProcessed</code> first. Then add <code>start</code>, <code>stop</code>, and the defensive snapshot.
+  </div>
+
+  <div class="callout pitfall">
+    <strong>Watch for this:</strong> A method like <code>getCountsByLevel</code> should not return the internal map directly. Returning internal state lets outside code modify the object behind our back.
+  </div>
+</section>
+
+<section id="problem3">
+  <h2><span class="big-number">3</span>Problem: Calculate Stats from Processed Readings</h2>
+  <p class="lead">Now let's connect this to streams and summaries. After work is processed, we often need a report.</p>
+
+  <div class="callout">
+    <strong>Problem statement:</strong> A sensor system collects readings. Each reading has a sensor id, a numeric value, and a timestamp. We need count, minimum, maximum, and average.
+  </div>
+
+  <h3>Step 1: Model the data</h3>
+
+  <pre><code>public record SensorReading(
+        String sensorId,
+        double value,
+        long timestamp
+) { }</code></pre>
+
+  <h3>Step 2: Identify the operation</h3>
+  <p>Here the input is a list, and the output is a summary. We are not changing the list. We are calculating facts about it.</p>
+
+  <pre><code>public DoubleSummaryStatistics summarize(List&lt;SensorReading&gt; readings)</code></pre>
+
+  <h3>Step 3: Choose the algorithm</h3>
+  <p>This is a natural stream summary problem.</p>
+
+  <pre><code>return readings.stream()
+        .mapToDouble(SensorReading::value)
+        .summaryStatistics();</code></pre>
+
+  <h3>Step 4: Connect it back to threads</h3>
+  <p>Now let's ask a design question. Should the processor calculate stats while messages are being processed, or should it store readings and summarize later?</p>
+
+  <div class="grid">
+    <div class="card blue">
+      <h4>Option A: summarize later</h4>
+      <p>Store readings, then use streams after processing is complete.</p>
+      <p><strong>Good when:</strong> we need flexible reports later.</p>
+    </div>
+    <div class="card green">
+      <h4>Option B: update stats while processing</h4>
+      <p>Update counters, totals, min, and max as each reading is processed.</p>
+      <p><strong>Good when:</strong> we only need one known summary and want less storage.</p>
+    </div>
+  </div>
+
+  <div class="callout question">
+    <strong>Let's think about it:</strong> If several worker threads update min, max, total, and count at the same time, what has to be protected?
+  </div>
+
+  <h3>Small class exercise</h3>
+  <p>We'll start with the stream version because the algorithm is clear and testable.</p>
+
+  <pre><code>public class SensorStatsBuilder {
+    public DoubleSummaryStatistics summarize(List&lt;SensorReading&gt; readings) {
+        // TODO: map readings to double values
+        // TODO: return summaryStatistics
+        return new DoubleSummaryStatistics();
+    }
+
+    public Map&lt;String, DoubleSummaryStatistics&gt; summarizeBySensor(List&lt;SensorReading&gt; readings) {
+        // TODO: group by sensor id
+        // TODO: summarize values inside each group
+        return Map.of();
+    }
+}</code></pre>
+
+  <div class="callout practice">
+    <strong>Stretch exercise:</strong> Implement <code>summarizeBySensor</code> using <code>groupingBy</code> and <code>summarizingDouble</code>.
+  </div>
+</section>
+
+<section id="homework">
+  <h2>Homework: same shapes, different stories</h2>
+  <p>For practice, we are going to solve very similar problems with different nouns. That is exactly how final preparation should work.</p>
+
+  <div class="grid">
+    <div class="card cream">
+      <span class="badge warn">Homework A</span>
+      <h3>Print Queue</h3>
+      <p>A printer receives jobs and prints them in the order they arrived.</p>
+      <pre><code>public void submit(PrintJob job)
+public Optional&lt;PrintJob&gt; printNext()
+public Optional&lt;PrintJob&gt; peekNext()
+public int queuedJobs()</code></pre>
+      <p>This is the queue version of the ordering problem.</p>
+    </div>
+
+    <div class="card cream">
+      <span class="badge warn">Homework B</span>
+      <h3>Sensor Processor</h3>
+      <p>Many producers submit readings. Worker threads process them and maintain safe statistics.</p>
+      <pre><code>public void submit(SensorReading reading)
+public void start(int workerCount)
+public void stop() throws InterruptedException
+public int getTotalProcessed()
+public DoubleSummaryStatistics getStats()</code></pre>
+      <p>This is the producer/consumer version of the handoff problem.</p>
+    </div>
+
+    <div class="card cream">
+      <span class="badge warn">Homework C</span>
+      <h3>Submission Report</h3>
+      <p>Given assignment submissions, calculate counts and averages.</p>
+      <pre><code>public SubmissionReport buildReport(List&lt;Submission&gt; submissions)</code></pre>
+      <p>This is the stream summary version of the stats problem.</p>
+    </div>
+  </div>
+</section>
+
+<section id="final-connection">
+  <h2>How this connects to the final</h2>
+  <p class="lead">The final can change the story, but the shape of the problem will still be recognizable.</p>
+
+  <table>
+    <tr>
+      <th>If the final says...</th>
+      <th>We should think...</th>
+      <th>Likely tools</th>
+    </tr>
+    <tr>
+      <td>“Most recent item first”</td>
+      <td>This is a stack-shaped problem.</td>
+      <td><code>Deque</code>, <code>push</code>, <code>pop</code>, <code>Optional</code></td>
+    </tr>
+    <tr>
+      <td>“First submitted, first processed”</td>
+      <td>This is a queue-shaped problem.</td>
+      <td><code>Queue</code>, <code>offer</code>, <code>poll</code>, <code>peek</code></td>
+    </tr>
+    <tr>
+      <td>“One side creates work, another side handles work”</td>
+      <td>This is a producer/consumer problem.</td>
+      <td><code>BlockingQueue</code>, workers, safe counters</td>
+    </tr>
+    <tr>
+      <td>“Count, average, min, max, group by”</td>
+      <td>This is a stats/report problem.</td>
+      <td>streams, collectors, summary statistics</td>
+    </tr>
+    <tr>
+      <td>“Multiple threads update the same state”</td>
+      <td>We must protect shared mutable state.</td>
+      <td><code>AtomicInteger</code>, <code>ConcurrentHashMap</code>, locks, synchronized access</td>
+    </tr>
+  </table>
+
+  <div class="callout good">
+    <strong>Final reminder:</strong> First identify the shape. Then pick the data structure. Then name the operations. Then code. If we skip the modeling step, the code usually gets messy.
+  </div>
+
+  <h3>Exit checklist</h3>
+  <ul class="checklist">
+    <li>We can explain stack versus queue using problem language.</li>
+    <li>We can use <code>Deque</code> for stack behavior.</li>
+    <li>We can use a queue to model waiting work.</li>
+    <li>We can explain the Producer / Consumer pattern.</li>
+    <li>We can identify shared state in a threaded class.</li>
+    <li>We can calculate stats using streams or thread-safe counters.</li>
+  </ul>
+</section>
+
+<div class="footer">
+  MCON 364 Final Review · Lesson 1 · Order, Flow, and Handoff
+</div>
+</main>
+</body>
+</html>
