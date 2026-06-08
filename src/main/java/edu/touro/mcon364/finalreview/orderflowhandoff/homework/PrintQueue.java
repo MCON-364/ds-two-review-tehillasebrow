@@ -2,78 +2,71 @@ package edu.touro.mcon364.finalreview.orderflowhandoff.homework;
 
 import edu.touro.mcon364.finalreview.model.PrintJob;
 
+// ArrayDeque is a "double-ended queue" — you can add/remove from either end.
+// We use it here as a normal FIFO (First-In-First-Out) queue: first job in, first job out.
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Optional;
 
 /**
  * Homework 1 — PrintQueue.
  *
- * A small print room has one shared printer. Many print jobs can be submitted,
- * but the printer can only work on one job at a time.
+ * THE BIG IDEA: a printer line behaves like a line at a store.
+ * The FIRST person to get in line is the FIRST person served. That rule is
+ * called FIFO (First In, First Out). The data structure that gives us FIFO is a QUEUE.
  *
- * The print room should behave the way people expect a normal printer line to
- * behave: jobs wait until it is their turn, and the next job selected for
- * printing should be based on the order in which jobs arrived.
- *
- * This class is responsible for remembering the waiting print jobs and exposing
- * the operations that the rest of the program would need:
- * submitting a new job, printing the next job, checking what would print next,
- * and reporting how many jobs are still waiting.
- *
- * Before coding, think through the shape of the problem:
- * - What information does this object need to remember between method calls?
- * - When a new job is submitted, where should it be placed?
- * - When the printer is ready, which job should be selected?
- * - Is this problem about the most recent item, the oldest item, or all items?
- * - Which collection behavior matches that rule?
- * - What should the methods return when there are no waiting jobs?
- *
- * Requirements:
- * - submit(job) records a new print job as waiting.
- * - printNext() removes and returns the job that should be printed next.
- * - printNext() returns Optional.empty() if no jobs are waiting.
- * - peekNext() returns the job that would be printed next, but does not remove it.
- * - peekNext() returns Optional.empty() if no jobs are waiting.
- * - queuedJobs() returns the number of print jobs currently waiting.
- * - The class should not expose its internal collection directly.
+ * - submit  = a new job walks up and gets in the BACK of the line.
+ * - printNext = the printer serves the person at the FRONT of the line (and they leave).
+ * - peekNext = the printer LOOKS at who is at the front, but doesn't serve them yet.
+ * - queuedJobs = how many people are currently waiting in line.
  */
 public class PrintQueue {
 
-    // TODO: choose the field or fields needed to remember waiting print jobs
+    // This is the ONE thing this object has to remember between method calls:
+    // the line of waiting jobs. `Deque` is the type (the "shape"); `ArrayDeque`
+    // is the concrete implementation we picked. `final` means we will never point
+    // `jobs` at a *different* queue object — but we can still add/remove items inside it.
+    private final Deque<PrintJob> jobs = new ArrayDeque<>();
 
     /**
      * Records a new print job as waiting.
-     *
-     * @param job the print job to add
      */
     public void submit(PrintJob job) {
-        // TODO: implement
+        // addLast = put this job at the BACK of the line (the tail).
+        // That is what makes it "fair": newcomers go to the end.
+        jobs.addLast(job);
     }
 
     /**
      * Removes and returns the print job that should be handled next.
-     *
-     * @return the next print job, or Optional.empty() when no jobs are waiting
      */
     public Optional<PrintJob> printNext() {
-        // TODO: implement
-        return Optional.empty();
+        // pollFirst = take the job at the FRONT of the line AND remove it.
+        // If the line is empty, pollFirst returns null instead of crashing.
+        PrintJob next = jobs.pollFirst();
+
+        // We never hand `null` back to the caller. Instead we wrap the result in an
+        // Optional: a little box that either contains a job (Optional.of) or is
+        // empty (Optional.empty). ofNullable picks the right one automatically:
+        // if `next` is null -> empty box; otherwise -> box holding the job.
+        return Optional.ofNullable(next);
     }
 
     /**
-     * Returns the print job that would be handled next without removing it.
-     *
-     * @return the next print job, or Optional.empty() when no jobs are waiting
+     * Returns the print job that would be handled next WITHOUT removing it.
      */
     public Optional<PrintJob> peekNext() {
-        // TODO: implement
-        return Optional.empty();
+        // peekFirst = LOOK at the front job but leave it in the line.
+        // Returns null if the line is empty.
+        PrintJob next = jobs.peekFirst();
+        return Optional.ofNullable(next);
     }
 
     /**
      * Returns the number of jobs currently waiting to be printed.
      */
     public int queuedJobs() {
-        // TODO: implement
-        return 0;
+        // size() = how many items are in the line right now.
+        return jobs.size();
     }
 }

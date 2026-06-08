@@ -1,6 +1,10 @@
 package edu.touro.mcon364.finalreview.orderflowhandoff.exercises;
 
-import edu.touro.mcon364.finalreview.model.Action;import java.util.Optional;
+import edu.touro.mcon364.finalreview.model.Action;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Optional;
 
 /**
  * In-class Exercise 1 — Action History
@@ -28,28 +32,51 @@ import edu.touro.mcon364.finalreview.model.Action;import java.util.Optional;
 
  */
 public class ActionHistory {
+    // THE BIG IDEA: undo/redo is TWO STACKS. A stack is "Last In, First Out" (LIFO),
+    // like a stack of plates — the last plate you put on is the first you take off.
+    // undoStack: actions you could undo (most recent on top).
+    // redoStack: actions you undid and could redo.
+    private final Deque<Action> undoStack = new ArrayDeque<>();
+    private final Deque<Action> redoStack = new ArrayDeque<>();
 
     public void perform(Action action) {
-        // TODO: implement based on the requirements above
+        // push = put the new action on TOP of the undo stack (it's the newest thing to undo).
+        undoStack.push(action);
+        // A brand-new action invalidates the redo path, so wipe the redo stack.
+        // (Once you do something new, "redo" of the old branch no longer makes sense.)
+        redoStack.clear();
     }
 
     public Optional<Action> undo() {
-        // TODO: implement based on the requirements above
-        return Optional.empty();
+        // Nothing to undo? Hand back an empty box.
+        if (undoStack.isEmpty())
+            return Optional.empty();
+        else
+            // Take the top action off undo (remove() removes the top), and push it
+            // onto redo so it can be redone later.
+            redoStack.push(undoStack.remove());
+        // Return the action we just moved (now on top of redo) wrapped in an Optional.
+        return Optional.ofNullable(redoStack.peek());
     }
 
     public Optional<Action> redo() {
-        // TODO: implement based on the requirements above
-        return Optional.empty();
+        // Nothing to redo? Empty box.
+        if (redoStack.isEmpty())
+            return Optional.empty();
+        else
+            // Move the top action from redo back onto undo (we're re-doing it).
+            undoStack.push(redoStack.remove());
+        // Return the action we just moved (now on top of undo).
+        return Optional.ofNullable(undoStack.peek());
     }
 
     public int getUndoCount() {
-        // TODO: implement based on the requirements above
-        return 0;
+        // How many actions are currently available to undo.
+        return undoStack.size();
     }
 
     public int getRedoCount() {
-        // TODO: implement based on the requirements above
-        return 0;
+        // How many actions are currently available to redo.
+        return redoStack.size();
     }
 }

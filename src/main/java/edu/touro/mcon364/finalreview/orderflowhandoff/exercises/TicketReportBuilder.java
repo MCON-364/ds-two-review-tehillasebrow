@@ -1,10 +1,13 @@
 package edu.touro.mcon364.finalreview.orderflowhandoff.exercises;
 
+import edu.touro.mcon364.finalreview.model.Priority;
 import edu.touro.mcon364.finalreview.model.SupportTicket;
 import edu.touro.mcon364.finalreview.model.TicketReport;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Building a report from completed work.
@@ -69,42 +72,60 @@ public class TicketReportBuilder {
      * list reference or store a defensive copy.
      */
     public TicketReportBuilder(List<SupportTicket> tickets) {
-        // TODO: validate and store the tickets this object will analyze
-        this.tickets = List.of();
+        // Two protections happen on this one line:
+        // 1. Objects.requireNonNull(tickets) throws a NullPointerException if the
+        //    caller passed null. (The test requires us to reject null.)
+        // 2. List.copyOf(...) makes our OWN private, unmodifiable copy of the list.
+        //    Why? If we just stored the caller's list and they later did list.clear(),
+        //    our report would silently change. A copy makes us immune to that.
+        this.tickets = List.copyOf(Objects.requireNonNull(tickets));
     }
 
     /**
      * Return how many tickets in this report data set were resolved.
      */
     public long getResolvedCount() {
-        // TODO: calculate from tickets
-        return 0;
+        return tickets.stream()                    // conveyor belt of all tickets
+                .filter(SupportTicket::resolved)   // keep only the ones where resolved() is true
+                .count();                          // how many survived
     }
 
     /**
-     * Return the average resolution time for resolved tickets only.
-     *
-     * Tickets that are not resolved should not affect this average.
+     * Return the average resolution time for RESOLVED tickets only.
      */
     public double getAverageResolutionMinutes() {
-        // TODO: calculate from tickets
-        return 0.0;
+        return tickets.stream()
+                .filter(SupportTicket::resolved)        // ignore unresolved tickets entirely
+                .mapToInt(t -> t.minutesToResolve())    // belt now carries the minute numbers
+                .average()                              // mean of those numbers (maybe-empty box)
+                .orElse(0.0);                           // no resolved tickets -> 0.0 instead of crash
     }
 
     /**
      * Return how many tickets belong to each category.
      */
     public Map<String, Long> getCountByCategory() {
-        // TODO: calculate from tickets
-        return Map.of();
+        return Map.copyOf(                              // freeze the result so callers can't edit it
+                tickets.stream()
+                        // Group every ticket by its category string, and for each
+                        // group count how many tickets landed there.
+                        // e.g. {"Billing" -> 2, "Tech" -> 1}
+                        .collect(Collectors.groupingBy(
+                                t -> t.category(),
+                                Collectors.counting()))
+        );
     }
 
     /**
-     * Return unresolved tickets that should receive the most urgent attention.
+     * Return unresolved tickets that should receive the most urgent attention,
+     * meaning: NOT resolved AND priority is HIGH.
      */
     public List<SupportTicket> getHighPriorityUnresolved() {
-        // TODO: calculate from tickets
-        return List.of();
+        return tickets.stream()
+                // Two conditions joined with && (AND): both must be true to keep the ticket.
+                // !t.resolved() means "not resolved". == Priority.HIGH means top urgency.
+                .filter(t -> !t.resolved() && t.priority() == Priority.HIGH)
+                .toList();                              // unmodifiable list of the survivors
     }
 
     /**
