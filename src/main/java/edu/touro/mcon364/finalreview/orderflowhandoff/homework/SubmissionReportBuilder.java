@@ -6,6 +6,9 @@ import edu.touro.mcon364.finalreview.model.SubmissionReport;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+// Collectors holds the "recipes" for turning a stream into a collection
+// (a list, a map, a count, an average, etc.).
+import java.util.stream.Collectors;
 
 /**
  * Homework 3 — Building a report from a completed collection.
@@ -53,37 +56,65 @@ public class SubmissionReportBuilder {
 
     /**
      * Return the number of submissions that were turned in late.
+     *
+     * STREAMS 101: `submissions.stream()` turns the list into a "conveyor belt"
+     * of items that we can run operations on one-by-one. Nothing is changed in
+     * the original list — a stream just *reads* and produces an answer.
      */
     public long getLateCount() {
-        // TODO: answer this reporting question from the submissions collection
-        return 0;
+        return submissions.stream()           // start the conveyor belt of submissions
+                // filter = keep only the items where the test is true.
+                // StudentSubmission::late is shorthand for "for each submission s, call s.late()".
+                // s.late() returns true if that submission was turned in late.
+                .filter(StudentSubmission::late)
+                // count = how many items survived the filter. Returns a long.
+                .count();
     }
 
     /**
      * Return the average score across all submissions.
-     *
      * If there are no submissions, return 0.0.
      */
     public double getAverageScore() {
-        // TODO: answer this reporting question from the submissions collection
-        return 0.0;
+        return submissions.stream()
+                // mapToInt = convert each submission into just its number (its score).
+                // The belt now carries ints (the scores) instead of whole submissions.
+                // s -> s.score() means "for each submission s, give me s.score()".
+                .mapToInt(s -> s.score())
+                // average = the mean of those ints. It returns an OptionalDouble
+                // (a maybe-empty box) because an EMPTY list has no average.
+                .average()
+                // orElse(0.0) = "if the box is empty (no submissions), use 0.0 instead."
+                // This satisfies the requirement: empty list -> 0.0, no crash.
+                .orElse(0.0);
     }
 
     /**
-     * Return a map where each assignment name is associated with the number of
-     * submissions received for that assignment.
+     * Return a map: assignment name -> how many submissions it received.
      */
     public Map<String, Long> getSubmissionsByAssignment() {
-        // TODO: answer this reporting question from the submissions collection
-        return Map.of();
+        return Map.copyOf(                     // (last step) freeze the map so callers can't edit it
+                submissions.stream()
+                        // groupingBy makes a Map. The first argument decides the KEY for each item;
+                        // here every submission is filed under its assignmentName ("HW1", "HW2"...).
+                        // Collectors.counting() decides the VALUE: count how many items fell into
+                        // each group. Result: {"HW1" -> 2, "HW2" -> 1}.
+                        .collect(Collectors.groupingBy(
+                                s -> s.assignmentName(),
+                                Collectors.counting()))
+        );
     }
 
     /**
      * Return the submissions whose score is below 60.
      */
     public List<StudentSubmission> getFailingSubmissions() {
-        // TODO: answer this reporting question from the submissions collection
-        return List.of();
+        return submissions.stream()
+                // keep only submissions whose score is under 60.
+                .filter(s -> s.score() < 60)
+                // toList() gathers the survivors into a List. In Java 16+ this list
+                // is UNMODIFIABLE, so callers can't sneak in changes to our data.
+                .toList();
     }
 
     /**
